@@ -1,0 +1,8 @@
+{
+  "name": "PharmaTrack ERP - Enterprise Pharmacy Supply Chain",
+  "description": "Enterprise-grade Pharmacy ERP & Supply Chain Distribution Platform featuring advanced batch tracking, FEFO dispensing engine, multi-warehouse transfers, and RBAC.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.sqlite3
+pharmacy_erp.db
+.DS_Store
+.env
+tsconfig.tsbuildinfo

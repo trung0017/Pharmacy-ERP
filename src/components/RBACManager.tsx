@@ -1,6 +1,7 @@
 import React from 'react';
-import { Shield, Key, Check, X, UserCheck, Lock, Users, AlertCircle } from 'lucide-react';
+import { Shield, Check, X, Lock } from 'lucide-react';
 import { User, UserRole } from '../types';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface RBACManagerProps {
   currentUser: User | null;
@@ -8,51 +9,60 @@ interface RBACManagerProps {
 }
 
 export const RBACManager: React.FC<RBACManagerProps> = ({ currentUser, onRoleChange }) => {
+  const { language, t } = useLanguage();
+
   const permissions = [
     {
-      feature: 'View Expiry Radar & Stock Batches',
+      featureEn: 'View Expiry Radar & Stock Batches',
+      featureVi: 'Xem Radar Hạn Dùng & Các Lô Thuốc',
       SuperAdmin: true,
       Pharmacist: true,
       Warehouse_Staff: true,
       Sales_Rep: true,
     },
     {
-      feature: 'Run FEFO Dispensing Engine & Print Pick Ticket',
+      featureEn: 'Run FEFO Dispensing Engine & Print Pick Ticket',
+      featureVi: 'Chạy Động Cơ Cấp Phát FEFO & In Phiếu Soạn Hàng',
       SuperAdmin: true,
       Pharmacist: true,
       Warehouse_Staff: true,
       Sales_Rep: false,
     },
     {
-      feature: 'Create Draft Inter-Warehouse Transfer Order',
+      featureEn: 'Create Draft Inter-Warehouse Transfer Order',
+      featureVi: 'Lập Đơn Nháp Điều Chuyển Giữa Các Kho Hàng',
       SuperAdmin: true,
       Pharmacist: true,
       Warehouse_Staff: true,
       Sales_Rep: false,
     },
     {
-      feature: 'Approve & Authorize Transfer Orders (Dispatched)',
+      featureEn: 'Approve & Authorize Transfer Orders (Dispatched)',
+      featureVi: 'Phê Duyệt & Cho Phép Xuất Kho Điều Chuyển',
       SuperAdmin: true,
       Pharmacist: true,
       Warehouse_Staff: false,
       Sales_Rep: false,
     },
     {
-      feature: 'Receive & Reconcile Inbound Warehouse Stock',
+      featureEn: 'Receive & Reconcile Inbound Warehouse Stock',
+      featureVi: 'Tiếp Nhận & Đối Soát Nhập Kho Đích',
       SuperAdmin: true,
       Pharmacist: false,
       Warehouse_Staff: true,
       Sales_Rep: false,
     },
     {
-      feature: 'Executive BI Analytics & Cost/Margin Reports',
+      featureEn: 'Executive BI Analytics & Cost/Margin Reports',
+      featureVi: 'Báo Cáo Phân Tích BI Doanh Nghiệp & Biên Lợi Nhuận',
       SuperAdmin: true,
       Pharmacist: true,
       Warehouse_Staff: false,
       Sales_Rep: false,
     },
     {
-      feature: 'User Management & Security Token Issuance',
+      featureEn: 'User Management & Security Token Issuance',
+      featureVi: 'Quản Lý Người Dùng & Cấp Phát Token Bảo Mật',
       SuperAdmin: true,
       Pharmacist: false,
       Warehouse_Staff: false,
@@ -65,25 +75,25 @@ export const RBACManager: React.FC<RBACManagerProps> = ({ currentUser, onRoleCha
       role: 'SuperAdmin',
       title: 'Dr. Sarah Vance, PharmD',
       email: 'admin@pharmatrack.io',
-      desc: 'System Architect & Chief Medical Officer. Unrestricted enterprise oversight.',
+      desc: t.roleSuperAdminDesc,
     },
     {
       role: 'Pharmacist',
       title: 'Marcus Aurelius Chen, RPh',
       email: 'pharmacist@pharmatrack.io',
-      desc: 'Formulary Director. Authorizes scheduled medicines, FEFO dispensing, and transfers.',
+      desc: t.rolePharmacistDesc,
     },
     {
       role: 'Warehouse_Staff',
       title: 'Elena Rostova',
       email: 'warehouse@pharmatrack.io',
-      desc: 'Logistics Supervisor. Physical stock fulfillment, barcoding, and receiving.',
+      desc: t.roleWarehouseStaffDesc,
     },
     {
       role: 'Sales_Rep',
       title: "David K. O'Connor",
       email: 'sales@pharmatrack.io',
-      desc: 'Territory Accounts. Read-only inventory and formulary checking for client quotes.',
+      desc: t.roleSalesRepDesc,
     },
   ];
 
@@ -92,13 +102,13 @@ export const RBACManager: React.FC<RBACManagerProps> = ({ currentUser, onRoleCha
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <span>Role-Based Access Control (RBAC) & Security Policy</span>
+          <span>{t.rbacTitle}</span>
           <span className="text-xs px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-mono">
-            Milestone 4: Security Matrix
+            Security Matrix
           </span>
         </h1>
         <p className="text-sm text-slate-400">
-          Cryptographically signed JWT tokens with route guard policies enforced across UI components and FastAPI REST routers.
+          {t.rbacSubtitle}
         </p>
       </div>
 
@@ -136,7 +146,7 @@ export const RBACManager: React.FC<RBACManagerProps> = ({ currentUser, onRoleCha
                     : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
                 }`}
               >
-                {isActive ? 'Active Session' : 'Switch to Persona'}
+                {isActive ? t.activeSession : t.switchToPersona}
               </button>
             </div>
           );
@@ -148,10 +158,10 @@ export const RBACManager: React.FC<RBACManagerProps> = ({ currentUser, onRoleCha
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider">
-              System Permissions & Route Guard Matrix
+              {t.permissionMatrixTitle}
             </h2>
             <p className="text-xs text-slate-400">
-              Granular capabilities per authorized role in accordance with 21 CFR Part 11 requirements
+              {t.permissionMatrixSubtitle}
             </p>
           </div>
           <Shield className="h-5 w-5 text-cyan-400" />
@@ -161,7 +171,7 @@ export const RBACManager: React.FC<RBACManagerProps> = ({ currentUser, onRoleCha
           <table className="w-full text-left text-xs font-sans">
             <thead className="bg-slate-950 text-slate-400 font-mono text-[11px] uppercase border-b border-slate-800">
               <tr>
-                <th className="py-3 px-4">Action / Feature Route</th>
+                <th className="py-3 px-4">{t.colFeatureRoute}</th>
                 <th className="py-3 px-4 text-center">SuperAdmin</th>
                 <th className="py-3 px-4 text-center">Pharmacist</th>
                 <th className="py-3 px-4 text-center">Warehouse_Staff</th>
@@ -171,7 +181,9 @@ export const RBACManager: React.FC<RBACManagerProps> = ({ currentUser, onRoleCha
             <tbody className="divide-y divide-slate-800/60 font-mono">
               {permissions.map((p, idx) => (
                 <tr key={idx} className="hover:bg-slate-800/30">
-                  <td className="py-3 px-4 font-sans text-slate-200">{p.feature}</td>
+                  <td className="py-3 px-4 font-sans text-slate-200">
+                    {language === 'vi' ? p.featureVi : p.featureEn}
+                  </td>
                   <td className="py-3 px-4 text-center">
                     {p.SuperAdmin ? (
                       <Check className="h-4 w-4 text-emerald-400 mx-auto" />

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, AlertTriangle, CheckCircle2, Snowflake, Filter, Search, ArrowRight, ShieldAlert, Sparkles } from 'lucide-react';
-import { StockLevel, Warehouse } from '../types';
+import { AlertCircle, AlertTriangle, CheckCircle2, Snowflake, Search, ArrowRight, ShieldAlert } from 'lucide-react';
+import { Warehouse } from '../types';
 import { fetchExpiryDashboard, fetchWarehouses } from '../api/client';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface ExpiryDashboardProps {
   onDispenseSelect?: (medicineId: number) => void;
 }
 
 export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSelect }) => {
+  const { t } = useLanguage();
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState<number | undefined>(undefined);
@@ -48,7 +50,6 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
   const warningItems = dashboardData?.warning_items || [];
   const validItems = dashboardData?.valid_items_sample || [];
 
-  // Combine items according to activeFilter
   let displayedItems: any[] = [];
   if (activeFilter === 'all') {
     displayedItems = [...criticalItems, ...warningItems, ...validItems];
@@ -77,25 +78,25 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span>Inventory Expiry & Risk Radar</span>
+            <span>{t.expiryRadarTitle}</span>
             <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-normal">
-              Milestone 2: FEFO Monitoring
+              FEFO Live
             </span>
           </h1>
           <p className="text-sm text-slate-400">
-            Real-time surveillance of drug lots expiring under 30 days (Critical Red) and under 90 days (Warning Amber).
+            {t.expiryRadarSubtitle}
           </p>
         </div>
 
         {/* Warehouse Selector */}
         <div className="flex items-center gap-2">
-          <label className="text-xs text-slate-400 font-mono">Warehouse:</label>
+          <label className="text-xs text-slate-400 font-mono">{t.warehouseFilter}</label>
           <select
             value={selectedWarehouse || ''}
             onChange={(e) => setSelectedWarehouse(e.target.value ? Number(e.target.value) : undefined)}
             className="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-cyan-500"
           >
-            <option value="">All Facilities (Global Enterprise)</option>
+            <option value="">{t.allFacilities}</option>
             {warehouses.map((wh) => (
               <option key={wh.id} value={wh.id}>
                 {wh.name} ({wh.code})
@@ -119,16 +120,16 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-semibold uppercase text-rose-400 flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping"></span>
-              Critical Expiry (&lt; 30 Days)
+              {t.criticalExpiry}
             </span>
             <AlertCircle className="h-5 w-5 text-rose-400" />
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <div className="text-2xl font-bold text-white font-mono">{summary.critical_batch_count || 0} Lots</div>
-            <div className="text-xs text-rose-300 font-mono">{summary.critical_units?.toLocaleString()} units</div>
+            <div className="text-2xl font-bold text-white font-mono">{summary.critical_batch_count || 0} {t.lots}</div>
+            <div className="text-xs text-rose-300 font-mono">{summary.critical_units?.toLocaleString()} {t.units}</div>
           </div>
           <div className="mt-1 text-xs text-rose-400 font-mono">
-            Loss At Risk: ${summary.critical_value_at_risk?.toLocaleString()}
+            {t.lossAtRisk} ${summary.critical_value_at_risk?.toLocaleString()}
           </div>
         </div>
 
@@ -144,15 +145,15 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-semibold uppercase text-amber-400 flex items-center gap-1.5">
               <AlertTriangle className="h-4 w-4 text-amber-400" />
-              Warning Shelf Life (&lt; 90 Days)
+              {t.warningShelfLife}
             </span>
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <div className="text-2xl font-bold text-white font-mono">{summary.warning_batch_count || 0} Lots</div>
-            <div className="text-xs text-amber-300 font-mono">{summary.warning_units?.toLocaleString()} units</div>
+            <div className="text-2xl font-bold text-white font-mono">{summary.warning_batch_count || 0} {t.lots}</div>
+            <div className="text-xs text-amber-300 font-mono">{summary.warning_units?.toLocaleString()} {t.units}</div>
           </div>
           <div className="mt-1 text-xs text-amber-400 font-mono">
-            Value At Risk: ${summary.warning_value_at_risk?.toLocaleString()}
+            {t.valueAtRisk} ${summary.warning_value_at_risk?.toLocaleString()}
           </div>
         </div>
 
@@ -168,15 +169,15 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-semibold uppercase text-emerald-400 flex items-center gap-1.5">
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              Valid Shelf Life (&gt; 90 Days)
+              {t.validShelfLife}
             </span>
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <div className="text-2xl font-bold text-white font-mono">{summary.valid_batch_count || 0} Lots</div>
-            <div className="text-xs text-emerald-300 font-mono">{summary.valid_units?.toLocaleString()} units</div>
+            <div className="text-2xl font-bold text-white font-mono">{summary.valid_batch_count || 0} {t.lots}</div>
+            <div className="text-xs text-emerald-300 font-mono">{summary.valid_units?.toLocaleString()} {t.units}</div>
           </div>
           <div className="mt-1 text-xs text-emerald-400 font-mono">
-            Valuation: ${summary.valid_value?.toLocaleString()}
+            {t.valuation} ${summary.valid_value?.toLocaleString()}
           </div>
         </div>
 
@@ -190,17 +191,17 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold uppercase text-cyan-400">Total Monitored Stock</span>
+            <span className="text-xs font-mono font-semibold uppercase text-cyan-400">{t.totalMonitoredStock}</span>
             <ShieldAlert className="h-4 w-4 text-cyan-400" />
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <div className="text-2xl font-bold text-white font-mono">
               ${summary.total_inventory_value?.toLocaleString()}
             </div>
-            <div className="text-xs text-slate-400 font-mono">{summary.total_stock_units?.toLocaleString()} units</div>
+            <div className="text-xs text-slate-400 font-mono">{summary.total_stock_units?.toLocaleString()} {t.units}</div>
           </div>
           <div className="mt-1 text-xs text-slate-400 font-mono">
-            Active FEFO Priority Engine On
+            {t.activeFefoPriority}
           </div>
         </div>
       </div>
@@ -212,7 +213,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
             <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-500" />
             <input
               type="text"
-              placeholder="Search batch #, drug name, or SKU..."
+              placeholder={t.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
@@ -221,26 +222,29 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="text-xs text-slate-400 font-mono">Filter Status:</span>
-          {(['all', 'critical', 'warning', 'valid'] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setActiveFilter(mode)}
-              className={`text-xs px-2.5 py-1 rounded-md font-medium transition ${
-                activeFilter === mode
-                  ? mode === 'critical'
-                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                    : mode === 'warning'
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : mode === 'valid'
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                    : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                  : 'text-slate-400 hover:text-slate-200 bg-slate-950 border border-slate-800'
-              }`}
-            >
-              {mode.charAt(0).toUpperCase() + mode.slice(1)}
-            </button>
-          ))}
+          <span className="text-xs text-slate-400 font-mono">{t.filterStatus}</span>
+          {(['all', 'critical', 'warning', 'valid'] as const).map((mode) => {
+            const label = mode === 'all' ? t.filterAll : mode === 'critical' ? t.filterCritical : mode === 'warning' ? t.filterWarning : t.filterValid;
+            return (
+              <button
+                key={mode}
+                onClick={() => setActiveFilter(mode)}
+                className={`text-xs px-2.5 py-1 rounded-md font-medium transition ${
+                  activeFilter === mode
+                    ? mode === 'critical'
+                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                      : mode === 'warning'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : mode === 'valid'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                      : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                    : 'text-slate-400 hover:text-slate-200 bg-slate-950 border border-slate-800'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -250,15 +254,15 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-950 text-slate-400 font-mono text-[11px] uppercase border-b border-slate-800">
               <tr>
-                <th className="py-3 px-4">Batch Number / SKU</th>
-                <th className="py-3 px-4">Medicine & Form</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Expiry Date</th>
-                <th className="py-3 px-4">Days Left</th>
-                <th className="py-3 px-4">Facility / Bin</th>
-                <th className="py-3 px-4 text-right">Units</th>
-                <th className="py-3 px-4 text-right">Cost Value</th>
-                <th className="py-3 px-4 text-center">FEFO Action</th>
+                <th className="py-3 px-4">{t.colBatchSku}</th>
+                <th className="py-3 px-4">{t.colMedicineForm}</th>
+                <th className="py-3 px-4">{t.colCategory}</th>
+                <th className="py-3 px-4">{t.colExpiryDate}</th>
+                <th className="py-3 px-4">{t.colDaysLeft}</th>
+                <th className="py-3 px-4">{t.colFacilityBin}</th>
+                <th className="py-3 px-4 text-right">{t.colUnits}</th>
+                <th className="py-3 px-4 text-right">{t.colCostValue}</th>
+                <th className="py-3 px-4 text-center">{t.colAction}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-sans">
@@ -293,7 +297,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
                         <div className="font-medium text-white flex items-center gap-1.5">
                           {item.medicine_name}
                           {item.requires_cold_chain && (
-                            <span title="Requires Cold Chain 2-8°C" className="text-cyan-400">
+                            <span title={t.coldChainRequired} className="text-cyan-400">
                               <Snowflake className="h-3 w-3 inline" />
                             </span>
                           )}
@@ -312,17 +316,17 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
                         {isCritical ? (
                           <span className="inline-flex items-center gap-1 font-mono font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/30 animate-pulse">
                             <AlertCircle className="h-3 w-3" />
-                            {item.days_to_expiry}d (Critical)
+                            {item.days_to_expiry}d ({t.critical})
                           </span>
                         ) : isWarning ? (
                           <span className="inline-flex items-center gap-1 font-mono font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
                             <AlertTriangle className="h-3 w-3" />
-                            {item.days_to_expiry}d (Warning)
+                            {item.days_to_expiry}d ({t.filterWarning})
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                             <CheckCircle2 className="h-3 w-3" />
-                            {item.days_to_expiry}d (Valid)
+                            {item.days_to_expiry}d ({t.filterValid})
                           </span>
                         )}
                       </td>
@@ -345,7 +349,7 @@ export const ExpiryDashboard: React.FC<ExpiryDashboardProps> = ({ onDispenseSele
                           onClick={() => onDispenseSelect && onDispenseSelect(item.medicine_id)}
                           className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 transition"
                         >
-                          <span>FEFO Dispense</span>
+                          <span>{t.btnFefoDispense}</span>
                           <ArrowRight className="h-3 w-3" />
                         </button>
                       </td>

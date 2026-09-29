@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, AlertTriangle, Snowflake } from 'lucide-react';
-import { Warehouse, Medicine, Batch } from '../types';
+import { Warehouse, Medicine } from '../types';
 import { createTransferOrder } from '../api/client';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface CreateTransferModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
   medicines,
   onSuccess,
 }) => {
+  const { t } = useLanguage();
   const [sourceId, setSourceId] = useState<number>(warehouses[0]?.id || 1);
   const [destId, setDestId] = useState<number>(warehouses[1]?.id || 2);
   const [notes, setNotes] = useState('');
@@ -27,7 +29,6 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Collect all available batches across medicines
   const allBatches = medicines.flatMap((m) =>
     m.batches.map((b) => ({
       ...b,
@@ -52,7 +53,6 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
     const batchObj = allBatches.find((b) => b.id === selectedBatchId);
     if (!batchObj) return;
 
-    // Check cold-chain constraint
     if (batchObj.requiresColdChain && destWarehouse && !destWarehouse.is_cold_storage) {
       setErrorMsg(`Cold-chain conflict: Destination '${destWarehouse.name}' has no cold-storage facility!`);
       return;
@@ -100,7 +100,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
       <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
         <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <span>Create Inter-Warehouse Transfer Order</span>
+            <span>{t.modalTitle}</span>
             <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800">
               State: Draft
             </span>
@@ -121,7 +121,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-mono uppercase text-slate-400 block mb-1">
-                Origin Facility (Source)
+                {t.originFacility}
               </label>
               <select
                 value={sourceId}
@@ -138,7 +138,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
 
             <div>
               <label className="text-xs font-mono uppercase text-slate-400 block mb-1">
-                Destination Warehouse
+                {t.destinationFacility}
               </label>
               <select
                 value={destId}
@@ -156,11 +156,11 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
 
           <div>
             <label className="text-xs font-mono uppercase text-slate-400 block mb-1">
-              Order Notes / Routing Justification
+              {t.routingNotes}
             </label>
             <input
               type="text"
-              placeholder="e.g. Critical cold-chain rebalance for hospital pediatric unit"
+              placeholder={t.routingNotesPlaceholder}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full bg-slate-950 border border-slate-700 text-white text-xs rounded-lg p-2.5"
@@ -170,7 +170,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
           {/* Add Line Items */}
           <div className="pt-2 border-t border-slate-800">
             <label className="text-xs font-mono uppercase text-slate-300 block mb-2 font-semibold">
-              Add Batch Lots to Transfer
+              {t.addBatchesTitle}
             </label>
             <div className="flex gap-2">
               <select
@@ -198,7 +198,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
                 className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-lg text-xs font-medium flex items-center gap-1 border border-slate-700"
               >
                 <Plus className="h-3.5 w-3.5" />
-                Add Item
+                {t.btnAddItem}
               </button>
             </div>
           </div>
@@ -207,7 +207,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
           <div className="max-h-44 overflow-y-auto border border-slate-800 rounded-lg bg-slate-950 p-2 space-y-1.5">
             {items.length === 0 ? (
               <div className="text-center py-4 text-xs text-slate-500">
-                No lots staged. Select a batch above and click "Add Item".
+                {t.noLotsStaged}
               </div>
             ) : (
               items.map((item, idx) => {
@@ -220,7 +220,7 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
                       {b?.requiresColdChain && <Snowflake className="h-3 w-3 text-cyan-400 inline" />}
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-white font-bold">{item.quantity} units</span>
+                      <span className="font-mono text-white font-bold">{item.quantity} {t.units}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(idx)}
@@ -241,14 +241,14 @@ export const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white"
             >
-              Cancel
+              {t.btnCancel}
             </button>
             <button
               type="submit"
               disabled={submitting || items.length === 0}
               className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-lg transition disabled:opacity-50"
             >
-              {submitting ? 'Creating Order...' : 'Create Draft Transfer'}
+              {submitting ? '...' : t.btnCreateDraft}
             </button>
           </div>
         </form>

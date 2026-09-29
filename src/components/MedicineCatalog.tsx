@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Pill, Search, Snowflake, ShieldCheck, ChevronDown, ChevronUp, Layers, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Search, Snowflake, ChevronDown, ChevronUp } from 'lucide-react';
 import { Medicine } from '../types';
 import { fetchMedicines, fetchCategories } from '../api/client';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const MedicineCatalog: React.FC = () => {
+  const { t } = useLanguage();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -35,13 +37,13 @@ export const MedicineCatalog: React.FC = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <span>Pharmaceutical Formulary & Batch Master</span>
+          <span>{t.catalogTitle}</span>
           <span className="text-xs px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-mono">
-            {medicines.length} Validated Formulations
+            {medicines.length} {t.colSkus}
           </span>
         </h1>
         <p className="text-sm text-slate-400">
-          Relational master catalog containing antibiotics, pain relief, vaccines, cardiovascular, endocrine, and oncology biologics.
+          {t.catalogSubtitle}
         </p>
       </div>
 
@@ -51,7 +53,7 @@ export const MedicineCatalog: React.FC = () => {
           <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-500" />
           <input
             type="text"
-            placeholder="Search formulation, generic name, or SKU..."
+            placeholder={t.searchFormulary}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
@@ -59,7 +61,7 @@ export const MedicineCatalog: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto scrollbar-none pb-1 md:pb-0">
-          <span className="text-xs text-slate-400 font-mono shrink-0">Category:</span>
+          <span className="text-xs text-slate-400 font-mono shrink-0">{t.colCategory}:</span>
           <button
             onClick={() => setSelectedCategory('all')}
             className={`text-xs px-2.5 py-1 rounded-md font-medium transition whitespace-nowrap ${
@@ -68,7 +70,7 @@ export const MedicineCatalog: React.FC = () => {
                 : 'text-slate-400 hover:text-slate-200 bg-slate-950 border border-slate-800'
             }`}
           >
-            All Categories ({medicines.length})
+            {t.filterAll} ({medicines.length})
           </button>
           {categories.map((c) => (
             <button
@@ -108,7 +110,7 @@ export const MedicineCatalog: React.FC = () => {
                     {med.requires_cold_chain && (
                       <span className="inline-flex items-center gap-1 text-[11px] font-mono text-cyan-300 bg-cyan-950/80 px-1.5 py-0.2 rounded border border-cyan-700">
                         <Snowflake className="h-3 w-3" />
-                        Cold Chain 2-8°C
+                        {t.coldStorage}
                       </span>
                     )}
                   </div>
@@ -120,7 +122,7 @@ export const MedicineCatalog: React.FC = () => {
 
                 <div className="text-right font-mono">
                   <div className="text-sm font-bold text-white">${med.unit_price.toFixed(2)}</div>
-                  <div className="text-[11px] text-emerald-400">Margin: {margin}%</div>
+                  <div className="text-[11px] text-emerald-400">{t.margin}: {margin}%</div>
                 </div>
               </div>
 
@@ -134,10 +136,10 @@ export const MedicineCatalog: React.FC = () => {
               <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs">
                 <div className="flex items-center gap-3 font-mono text-slate-300">
                   <span>
-                    Total Stock: <strong className="text-white">{med.total_stock.toLocaleString()}</strong> units
+                    Total: <strong className="text-white">{med.total_stock.toLocaleString()}</strong> {t.units}
                   </span>
                   <span>
-                    Lots: <strong className="text-cyan-400">{med.batches.length}</strong>
+                    {t.lots}: <strong className="text-cyan-400">{med.batches.length}</strong>
                   </span>
                 </div>
 
@@ -145,7 +147,7 @@ export const MedicineCatalog: React.FC = () => {
                   onClick={() => setExpandedMedId(isExpanded ? null : med.id)}
                   className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 font-medium"
                 >
-                  <span>{isExpanded ? 'Hide Batches' : 'Inspect Batches'}</span>
+                  <span>{isExpanded ? t.hideBatches : t.inspectBatches}</span>
                   {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                 </button>
               </div>
@@ -154,7 +156,7 @@ export const MedicineCatalog: React.FC = () => {
               {isExpanded && (
                 <div className="mt-3 pt-3 border-t border-slate-800 space-y-2">
                   <span className="text-[11px] font-mono uppercase text-slate-400 block font-semibold">
-                    Active Batches in Distribution:
+                    {t.activeBatchesInDist}
                   </span>
                   <div className="space-y-1.5">
                     {med.batches.map((b) => {
@@ -170,7 +172,7 @@ export const MedicineCatalog: React.FC = () => {
                             <div className="font-mono font-bold text-white flex items-center gap-2">
                               <span>{b.batch_no}</span>
                               <span className="text-[10px] text-slate-500 font-normal">
-                                Initial: {b.total_initial_quantity} units
+                                {t.initialUnits} {b.total_initial_quantity} {t.units}
                               </span>
                             </div>
                             <div className="text-[11px] text-slate-400 font-mono">
@@ -181,15 +183,15 @@ export const MedicineCatalog: React.FC = () => {
                           <div>
                             {isCrit ? (
                               <span className="font-mono text-[11px] font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/30">
-                                {b.days_to_expiry}d (Critical)
+                                {b.days_to_expiry}d ({t.critical})
                               </span>
                             ) : isWarn ? (
                               <span className="font-mono text-[11px] font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
-                                {b.days_to_expiry}d (Warning)
+                                {b.days_to_expiry}d ({t.filterWarning})
                               </span>
                             ) : (
                               <span className="font-mono text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                {b.days_to_expiry}d (Valid)
+                                {b.days_to_expiry}d ({t.filterValid})
                               </span>
                             )}
                           </div>

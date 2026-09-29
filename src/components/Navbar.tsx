@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pill, Shield, ArrowLeftRight, Activity, BarChart3, Clock, Warehouse as WarehouseIcon, UserCheck, AlertTriangle } from 'lucide-react';
+import { Pill, Shield, ArrowLeftRight, Activity, BarChart3, Clock, Globe } from 'lucide-react';
 import { User, UserRole } from '../types';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface NavbarProps {
   activeTab: string;
@@ -17,11 +18,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRoleChange,
   criticalExpiryCount,
 }) => {
-  const roles: { role: UserRole; title: string; desc: string }[] = [
-    { role: 'SuperAdmin', title: 'Super Admin', desc: 'Full System & Security Access' },
-    { role: 'Pharmacist', title: 'Lead Pharmacist', desc: 'Approves Transfers & Dispenses' },
-    { role: 'Warehouse_Staff', title: 'Warehouse Staff', desc: 'Dispatches & Reconciles' },
-    { role: 'Sales_Rep', title: 'Sales Rep', desc: 'Catalog & Stock Visibility Only' },
+  const { language, setLanguage, t } = useLanguage();
+
+  const roles: { role: UserRole; title: string }[] = [
+    { role: 'SuperAdmin', title: t.roleSuperAdmin },
+    { role: 'Pharmacist', title: t.rolePharmacist },
+    { role: 'Warehouse_Staff', title: t.roleWarehouseStaff },
+    { role: 'Sales_Rep', title: t.roleSalesRep },
   ];
 
   return (
@@ -35,25 +38,56 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold tracking-tight text-white text-lg">PharmaTrack</span>
+                <span className="font-bold tracking-tight text-white text-lg">{t.platformTitle}</span>
                 <span className="text-xs uppercase px-1.5 py-0.5 rounded font-mono font-semibold bg-cyan-950 text-cyan-400 border border-cyan-800">
-                  ERP v1.4
+                  {t.version}
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Live FEFO Engine
+                  {t.liveFefoEngine}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Batch-Tracked Supply Chain & Distribution</p>
+              <p className="text-xs text-slate-400">{t.platformSubtitle}</p>
             </div>
           </div>
 
-          {/* User Role Switcher (RBAC Persona Controller) */}
-          <div className="flex items-center gap-3">
+          {/* Right Action Bar: Language Switcher + User Role Switcher */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Switcher */}
+            <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-1">
+              <button
+                onClick={() => setLanguage('vi')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold transition ${
+                  language === 'vi'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+                title="Tiếng Việt"
+              >
+                <span>🇻🇳</span>
+                <span className="hidden md:inline">Tiếng Việt</span>
+                <span className="md:hidden">VI</span>
+              </button>
+              <button
+                onClick={() => setLanguage('en')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold transition ${
+                  language === 'en'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+                title="English"
+              >
+                <span>🇺🇸</span>
+                <span className="hidden md:inline">English</span>
+                <span className="md:hidden">EN</span>
+              </button>
+            </div>
+
+            {/* User Role Switcher (RBAC Persona Controller) */}
             <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg p-1.5 px-3">
-              <Shield className="h-4 w-4 text-cyan-400" />
+              <Shield className="h-4 w-4 text-cyan-400 shrink-0" />
               <div className="text-xs">
-                <span className="text-slate-400 block text-[10px] uppercase font-mono">Simulate RBAC Role:</span>
+                <span className="text-slate-400 hidden sm:block text-[10px] uppercase font-mono">{t.simulateRbacRole}</span>
                 <select
                   value={currentUser?.role || 'SuperAdmin'}
                   onChange={(e) => onRoleChange(e.target.value as UserRole)}
@@ -61,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   {roles.map((r) => (
                     <option key={r.role} value={r.role} className="bg-slate-900 text-white">
-                      {r.title} ({r.role})
+                      {r.title}
                     </option>
                   ))}
                 </select>
@@ -69,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {currentUser && (
-              <div className="hidden md:flex flex-col text-right">
+              <div className="hidden lg:flex flex-col text-right">
                 <span className="text-xs font-medium text-slate-200">{currentUser.full_name}</span>
                 <span className="text-[11px] text-slate-400">{currentUser.email}</span>
               </div>
@@ -88,10 +122,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Clock className="h-3.5 w-3.5" />
-            Expiry Dashboard
+            {t.tabExpiry}
             {criticalExpiryCount > 0 && (
               <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse">
-                {criticalExpiryCount} Critical
+                {criticalExpiryCount} {t.critical}
               </span>
             )}
           </button>
@@ -105,7 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Activity className="h-3.5 w-3.5" />
-            FEFO Dispensing Engine
+            {t.tabFefo}
           </button>
 
           <button
@@ -117,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <ArrowLeftRight className="h-3.5 w-3.5" />
-            Inter-Warehouse Transfers
+            {t.tabTransfers}
           </button>
 
           <button
@@ -129,7 +163,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Pill className="h-3.5 w-3.5" />
-            Medicines & Batches
+            {t.tabCatalog}
           </button>
 
           <button
@@ -141,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <BarChart3 className="h-3.5 w-3.5" />
-            BI & Financial Analytics
+            {t.tabAnalytics}
           </button>
 
           <button
@@ -153,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Shield className="h-3.5 w-3.5" />
-            RBAC & Security
+            {t.tabRbac}
           </button>
         </nav>
       </div>
